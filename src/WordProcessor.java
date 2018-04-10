@@ -66,8 +66,15 @@ public class WordProcessor {
 		 */
 		
 		//Went over in lecture
-		//							    Remove Whitespace |       Remove null and whitespace     | Change all to uppercase
-		Stream<String> wordStream = Files.lines(Paths.get(filepath)).map(String::trim).filter(x -> x != null && !x.equals("")).map(String::toUpperCase);
+		
+		// Remove White Space
+		Stream<String> wordStream = Files.lines(Paths.get(filepath)).map(String::trim);
+		
+		//Remove empty lines
+		wordStream = wordStream.filter(x -> x != null && !x.equals(""));
+		
+		//Change to upper case
+		wordStream = wordStream.map(String::toUpperCase);
 		
 		return wordStream;
 	}
