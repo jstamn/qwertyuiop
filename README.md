@@ -5,14 +5,14 @@
 - ~Graph~
 
 - WordProcessor
-  - StringStream Method
+  - ~StringStream Method~
   - IsAdjacent Method
   
   
 - GraphProcessor
   - Populate Method
   - Get Shortest Path Method
-  - Get Shortest Distance Method
+  - ~Get Shortest Distance Method~
   - Precompute all paths Method
   
 - GraphProcessorTest
