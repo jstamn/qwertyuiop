@@ -109,7 +109,7 @@ public class GraphProcessor {
      * @return Integer distance
      */
     public Integer getShortestDistance(String word1, String word2) {
-        return null;
+        return getShortestPath(word1, word2).size() - 1;
     }
     
     /**
