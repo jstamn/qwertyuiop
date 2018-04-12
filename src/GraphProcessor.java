@@ -64,8 +64,38 @@ public class GraphProcessor {
      * @return Integer the number of vertices (words) added
      */
     public Integer populateGraph(String filepath) {
-        return 0;
-    
+        int count = 0;
+    	try {
+    		// gets the stream of the words from the file
+    		Stream<String> stream = WordProcessor.getWordStream(filepath);
+    		// converts the stream into a list of words
+    		List<String> listOfLines = stream.collect(Collectors.toList());
+			/*
+			 * for every word:
+			 * 	1. a vertex is added
+			 * 	2. an edge is added, if it is adjacent to any other vertices
+			 */
+			for(String word: listOfLines) {
+				String added = graph.addVertex(word);
+				if(added != null) {
+					for(String vertices: graph.getAllVertices()) {
+						if(vertices.equals(word))
+							continue;
+						if(WordProcessor.isAdjacent(word, vertices)) {
+							graph.addEdge(word, vertices);
+							count++;
+						}
+					}
+				}
+			}
+			// TODO: check this
+			// calling the shortestPathPrecomputation() method if a new edge is added
+			if(count > 0)
+				shortestPathPrecomputation();
+		} catch (IOException e) {
+			count = -1; // indicates that an IOException has been encountered
+		}
+    	return count;
     }
 
     
