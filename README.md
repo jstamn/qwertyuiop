@@ -10,7 +10,7 @@
   
   
 - GraphProcessor
-  - Populate Method
+  - ~Populate Method~
   - Get Shortest Path Method
   - ~Get Shortest Distance Method~
   - Precompute all paths Method
@@ -26,7 +26,7 @@ Announcements | Overview | Learning Outcomes | Description | Specifications | Fi
 
 Announcements (and answers to FAQs)
 Corrections, clarifications, and other announcements regarding this programming assignment will be found below.
-
+4/9 GraphProcessor.java: method header updated for populateGraph method.
 4/8 GraphProcessor.java: method headers updated for getShortestPath and getShortestDistance methods.
 4/4 Links for files: word_list.txt and few_interesting_combos.txt are live now.
 word_list.txt is input dictionary file to the program's GraphProcessor->populateGraph() method.
