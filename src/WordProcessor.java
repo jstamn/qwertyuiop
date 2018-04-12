@@ -97,6 +97,53 @@ public class WordProcessor {
 	 * @return true if word1 and word2 are adjacent else false
 	 */
 	public static boolean isAdjacent(String word1, String word2) {
+		//tests equal
+		if(word1.equals(word2)) {
+			return false;
+		}
+		
+		char[] word1Array = word1.toCharArray();
+		char[] word2Array = word2.toCharArray();
+		
+		//1 char replacement
+		if (word1Array.length == word2Array.length) {
+			int difference = 0;
+			for (int i = 0; i < word1Array.length; i++) {
+				if (word1Array[i] != word2Array[i]) {
+					difference += 1;
+				}
+			}
+			if (difference == 1) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		//1 char addition or deletion
+		if ((word1Array.length - word2Array.length) == 1) {
+			int j = 0;
+			for (int i = 0; i < word1Array.length; i++) {
+				if (word1Array[i] == word2Array[j]) {
+					j ++;
+				}
+			}
+			if (word1Array.length - j == 1){
+				return true;
+			}
+		} else if ((word2Array.length - word1Array.length) == 1){
+			int j = 0;
+			for (int i = 0; i < word2Array.length; i++) {
+				if (word2Array[i] == word1Array[j]) {
+					j ++;
+				}
+			}
+			if (word2Array.length - j == 1){
+				return true;
+			}
+		}
+		
+		
 		return false;	
 	}
 	
