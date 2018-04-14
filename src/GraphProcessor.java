@@ -1,10 +1,14 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Stack;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -37,16 +41,24 @@ import java.util.stream.Stream;
  */
 public class GraphProcessor {
 
-    /**
-     * Graph which stores the dictionary words and their associated connections
+	/**
+     * @param graph Graph which stores the dictionary words and their associated connections
+     * @param paths the data structure that stores the shortest path from every vertex to every other vertex
+     * @param vertices stores the vertices in the graph
+     * @param numVertices stores the number of vertices 
      */
+	private ArrayList<ArrayList<ArrayList<String>>> paths;
     private GraphADT<String> graph;
-
+    private ArrayList<Vertex<String>> vertices;
+    private int numVertices;
     /**
      * Constructor for this class. Initializes instances variables to set the starting state of the object
      */
     public GraphProcessor() {
         this.graph = new Graph<>();
+        vertices = new ArrayList<>();
+        this.paths = new ArrayList<ArrayList<ArrayList<String>>>();
+        numVertices = 0;
     }
         
     /**
@@ -72,30 +84,43 @@ public class GraphProcessor {
     		List<String> listOfLines = stream.collect(Collectors.toList());
 			/*
 			 * for every word:
-			 * 	1. a vertex is added
+			 * 	1. a vertex is added to the graph
 			 * 	2. an edge is added, if it is adjacent to any other vertices
+			 * 	3. a vertex is added to the list vertices
+			 * 	4. the value of numVertices is incremented
+			 * 	5. adding a new row and column to the data structure (3D array list)
+			 * 	6. shortestPathPrecomputation() method is called
 			 */
 			for(String word: listOfLines) {
 				String added = graph.addVertex(word);
 				if(added != null) {
+					Vertex<String> v = new Vertex<String>(word);
+					vertices.add(v);
+					count++;
+					numVertices++;
 					for(String vertices: graph.getAllVertices()) {
 						if(vertices.equals(word))
 							continue;
 						if(WordProcessor.isAdjacent(word, vertices)) {
 							graph.addEdge(word, vertices);
-							count++;
 						}
 					}
+					paths.add(new ArrayList<ArrayList<String>>());
+					for(ArrayList<ArrayList<String>> col: paths) {
+						col.add(new ArrayList<String>());
+					}
+					shortestPathPrecomputation();
 				}
 			}
-			// TODO: check this
-			// calling the shortestPathPrecomputation() method if a new edge is added
-			if(count > 0)
-				shortestPathPrecomputation();
+//			// TODO: check this
+//			// calling the shortestPathPrecomputation() method if a new edge is added
+//			if(count > 0)
+//				shortestPathPrecomputation();
 		} catch (IOException e) {
 			count = -1; // indicates that an IOException has been encountered
 		}
     	return count;
+    
     }
 
     
@@ -117,8 +142,16 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-        return null;
-    
+        int location1 = -1;
+        int location2 = -2;
+        int counter = 0;
+        for(Vertex<String> v: vertices) {
+        	if(v.getVal().equals(word1))
+        		location1 = counter;
+        	if(v.getVal().equals(word2))
+        		location2 = counter;
+        }
+    	return paths.get(location2).get(location1);
     }
     
     /**
@@ -148,6 +181,111 @@ public class GraphProcessor {
      * Any shortest path algorithm can be used (Djikstra's or Floyd-Warshall recommended).
      */
     public void shortestPathPrecomputation() {
+    	Vertex<String> newVertex = vertices.get(numVertices - 1);
+    	int i = 0;
+    	for(Vertex<String> v: vertices) {
+    		if(v.getVal().equals(newVertex.getVal()))
+    			continue;
+    		ArrayList<String> shortestPath = dijkstra(v, newVertex);
+    		paths.get(numVertices - 1).add(i, shortestPath);
+    		paths.get(i).add(numVertices - 1, shortestPath);
+    		i++;
+    	}
+    }
     
+    /**
+     * @precondition start must have been initialized
+     * 
+     * @param start
+     * @return
+     */
+    private ArrayList<String> dijkstra(Vertex<String> start, Vertex<String> end) {
+    	start.setWeight(0);
+    	PriorityQueue<Vertex<String>> pq = new PriorityQueue<Vertex<String>>(new VertexComparator());
+    	pq.add(start);
+    	while(!pq.isEmpty()) {
+    		Vertex<String> min = pq.poll();
+    		min.setVisited(true);
+    		for(String str: graph.getNeighbors(min.getVal())) {
+    			Vertex<String> neighbor = null;
+    			for(Vertex<String> v: vertices) {
+    				if(v.getVal().equals(str)) {
+    					neighbor = v;
+    				}
+    			}
+    			if(!neighbor.isVisited()) {
+    				if(neighbor.getWeight() > min.getWeight() + 1) {
+    					neighbor.setWeight(min.getWeight() + 1);
+    					neighbor.setPred(min);
+    					pq.add(neighbor);
+    				}
+    			}
+    		}
+    	}
+    	LinkedList<String> p = new LinkedList<String>();
+    	Vertex<String> current = end;
+    	while(current != null) {
+    		p.addFirst(current.getVal());
+    		current.setDefault();
+    		current = current.getPred();
+    		}
+    	String[] arr = (String[]) p.toArray();
+    	return new ArrayList<String>(Arrays.asList(arr));
     }
 }
+    class Vertex<T>{
+    	public Vertex(T val) {
+    		visited = false;
+    		weight = Integer.MAX_VALUE;
+    		pred = null;
+    		this.val = val;
+    	}
+    	
+    	public T getVal() {
+			return val;
+		}
+    	public boolean isVisited() {
+			return visited;
+		}
+		public void setVisited(boolean visited) {
+			this.visited = visited;
+		}
+		public int getWeight() {
+			return weight;
+		}
+		public void setWeight(int weight) {
+			this.weight = weight;
+		}
+		public Vertex<String> getPred() {
+			return pred;
+		}
+		public void setPred(Vertex<String> pred) {
+			this.pred = pred;
+		}
+		public void setDefault() {
+			visited = false;
+    		weight = Integer.MAX_VALUE;
+    		pred = null;
+		}
+		private boolean visited;
+		private int weight;
+    	private Vertex<String> pred;
+    	private T val;
+	}
+    
+    class VertexComparator implements Comparator<Vertex<String>> {
+		
+    	@Override
+		public int compare(Vertex<String> o1, Vertex<String> o2) {
+			Integer comp1 = o1.getWeight();
+			Integer comp2 = o2.getWeight();
+			if(comp1.equals(comp2)) {
+				return o1.getVal().compareTo(o2.getVal());
+			}
+			else
+				return comp1.compareTo(comp2);
+		}
+    	
+    }
+    
+
