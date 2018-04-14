@@ -89,7 +89,6 @@ public class GraphProcessor {
 			 * 	3. a vertex is added to the list vertices
 			 * 	4. the value of numVertices is incremented
 			 * 	5. adding a new row and column to the data structure (3D array list)
-			 * 	6. shortestPathPrecomputation() method is called
 			 */
 			for(String word: listOfLines) {
 				String added = graph.addVertex(word);
@@ -109,13 +108,9 @@ public class GraphProcessor {
 					for(ArrayList<ArrayList<String>> col: paths) {
 						col.add(new ArrayList<String>());
 					}
-					shortestPathPrecomputation();
 				}
 			}
-//			// TODO: check this
-//			// calling the shortestPathPrecomputation() method if a new edge is added
-//			if(count > 0)
-//				shortestPathPrecomputation();
+			shortestPathPrecomputation();
 		} catch (IOException e) {
 			count = -1; // indicates that an IOException has been encountered
 		}
@@ -150,6 +145,7 @@ public class GraphProcessor {
         		location1 = counter;
         	if(v.getVal().equals(word2))
         		location2 = counter;
+        	counter++;
         }
     	return paths.get(location2).get(location1);
     }
@@ -181,66 +177,134 @@ public class GraphProcessor {
      * Any shortest path algorithm can be used (Djikstra's or Floyd-Warshall recommended).
      */
     public void shortestPathPrecomputation() {
-    	Vertex<String> newVertex = vertices.get(numVertices - 1);
-    	int i = 0;
-    	for(Vertex<String> v: vertices) {
-    		if(v.getVal().equals(newVertex.getVal()))
-    			continue;
-    		ArrayList<String> shortestPath = dijkstra(v, newVertex);
-    		paths.get(numVertices - 1).add(i, shortestPath);
-    		paths.get(i).add(numVertices - 1, shortestPath);
+    	/*
+    	 * counter and i contain the same values but serve different purposes
+    	 * i is used to iterate over the vertices array list
+    	 * counter is used to determine to the elements in the data structure for which
+    	 * 	a path needs to be calculated
+    	 * (A reflection along the main diagonal of the array list is observed)
+    	 */
+    	int counter;
+		int i = counter = 0;
+		/*
+		 * For every column:
+		 * 	1. calculates the shortest path through Dijkstra's algorithm for every vertex specifically 
+		 * 		vertex at i
+		 * 	2. then for every row, it builds shortest path from vertex at i to vertex at j 
+		 * 		by calling buildPath()
+		 */
+    	for(ArrayList<ArrayList<String>> v: paths) {
+    		dijkstra(vertices.get(i));
+    		for(int j = counter; j < v.size(); j++) {
+    			ArrayList<String> finalPath = buildPath(vertices.get(i), vertices.get(j));
+    			v.set(j, finalPath);
+    			paths.get(j).set(i, finalPath);
+    		}
     		i++;
+    		counter++;
+    		for(Vertex<String> ver: vertices)
+        		ver.setDefault(); // setting the values of the vertices back to their default values
     	}
     }
     
     /**
      * @precondition start must have been initialized
-     * 
-     * @param start
-     * @return
+     * Applies the Djikstra's algorithm to find the shortest path from the starting vertex 
+     * 	by updating the 
+     * @param start the starting vertex
      */
-    private ArrayList<String> dijkstra(Vertex<String> start, Vertex<String> end) {
-    	start.setWeight(0);
+    private void dijkstra(Vertex<String> start) {
+    	start.setWeight(0); // set the weight of the start to zero
     	PriorityQueue<Vertex<String>> pq = new PriorityQueue<Vertex<String>>(new VertexComparator());
-    	pq.add(start);
-    	while(!pq.isEmpty()) {
-    		Vertex<String> min = pq.poll();
-    		min.setVisited(true);
-    		for(String str: graph.getNeighbors(min.getVal())) {
+    	// Comparator passed as parameter so that the Priority Queue compares elements accordingly
+    	pq.add(start); // add the start vertex to the Priority Queue
+    	while(!pq.isEmpty()) { // runs until the Priority Queue is empty 
+    		Vertex<String> min = pq.poll(); // removes the element of highest priority
+    		min.setVisited(true); // sets the removed element to visited
+    		for(String str: graph.getNeighbors(min.getVal())) { // for every neighbor of the vertex removed
     			Vertex<String> neighbor = null;
+    			/*
+    			 * finds the vertex in the vertices array list that corresponds to each neighbor
+    			 */
     			for(Vertex<String> v: vertices) {
     				if(v.getVal().equals(str)) {
     					neighbor = v;
     				}
     			}
+    			// for every unvisited successor/neighbor of min
     			if(!neighbor.isVisited()) {
+    				// checks if the weight can be reduced
     				if(neighbor.getWeight() > min.getWeight() + 1) {
+    					/*
+    					 * updates the weight, predecessor and adds the neighbor to the Priority Queue 
+    					 */
     					neighbor.setWeight(min.getWeight() + 1);
     					neighbor.setPred(min);
     					pq.add(neighbor);
+    					// if neighbor is already in the PQ, we just update the its total weight
     				}
     			}
     		}
     	}
+    }
+    
+    /**
+     * This method builds a path from the start vertex till the end vertex
+     * using a Linked List to store the vertices 
+     * @param start the vertex from where the path needs to be constructed
+     * @param end the vertex till the path needs to be constructed
+     * @return the path as an Array List
+     */
+    private ArrayList<String> buildPath(Vertex<String> start, Vertex<String> end) {
     	LinkedList<String> p = new LinkedList<String>();
     	Vertex<String> current = end;
-    	while(current != null) {
+    	// adding the vertices to the beginning of the Linked List
+    	while(current != start) {
     		p.addFirst(current.getVal());
-    		current.setDefault();
     		current = current.getPred();
     		}
-    	String[] arr = (String[]) p.toArray();
+    	p.addFirst(start.getVal());
+    	String[] arr = (String[]) p.toArray(); 
     	return new ArrayList<String>(Arrays.asList(arr));
     }
+    /**
+     * Called by the Graph class whenever a vertex is removed to update the 
+     * lists here
+     * @param ver the value of the vertex that needs to be removed
+     */
+    public void removeVertex(String ver) {
+    	int i = 0;
+    	for(Vertex<String> v: vertices) {
+    		if(v.getVal().equals(ver)) {
+    			paths.remove(i); // removes the column corresponding to ver from the 3D arrayList
+    			for(ArrayList<ArrayList<String>> rem: paths) {
+    				rem.remove(i); // removes the row corresponding to ver from the 3D array List
+    			}
+    			vertices.remove(i); // removes the vertex from the array list storing the vertex
+    			break; // if the vertex has been removed from all the data structures
+    		}
+    		i++; 
+    	}
+    }
 }
+/**
+ * The Vertex class represents each vertex of the graph 
+ * @param <T> generic data type
+ */
     class Vertex<T>{
+    	/**
+    	 * @param visited keeps track of whether the vertex has been visited or not
+    	 * @param val stores the value of the vertex
+    	 * @param weight stores the total weight of the vertex
+    	 * @param pred stores the predecessor of the vertex
+    	 */
     	public Vertex(T val) {
     		visited = false;
     		weight = Integer.MAX_VALUE;
     		pred = null;
     		this.val = val;
     	}
-    	
+    	// getters and setters for the global data members
     	public T getVal() {
 			return val;
 		}
@@ -262,6 +326,9 @@ public class GraphProcessor {
 		public void setPred(Vertex<String> pred) {
 			this.pred = pred;
 		}
+		/*
+		 * sets all the values to their default values
+		 */
 		public void setDefault() {
 			visited = false;
     		weight = Integer.MAX_VALUE;
@@ -272,9 +339,15 @@ public class GraphProcessor {
     	private Vertex<String> pred;
     	private T val;
 	}
-    
+     /**
+      * This class defines a specific way by which the Vertex elements need to be
+      * compared (here, by the Priority Queue)
+      */
     class VertexComparator implements Comparator<Vertex<String>> {
-		
+		/*
+		 * First compares with respect to the weight and then with respect to the
+		 * String value that it contains
+		 */
     	@Override
 		public int compare(Vertex<String> o1, Vertex<String> o2) {
 			Integer comp1 = o1.getWeight();
@@ -285,7 +358,6 @@ public class GraphProcessor {
 			else
 				return comp1.compareTo(comp2);
 		}
-    	
     }
     
 
