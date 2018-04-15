@@ -64,18 +64,13 @@ public class WordProcessor {
 		 * Note: since map and filter return the updated Stream objects, they can chained together as:
 		 * 		streamOfLines.map(...).filter(a -> ...).map(...) and so on
 		 */
-		
 		//Went over in lecture
-		
 		// Remove White Space
 		Stream<String> wordStream = Files.lines(Paths.get(filepath)).map(String::trim);
-		
 		//Remove empty lines
 		wordStream = wordStream.filter(x -> x != null && !x.equals(""));
-		
 		//Change to upper case
 		wordStream = wordStream.map(String::toUpperCase);
-		
 		return wordStream;
 	}
 	
@@ -101,13 +96,18 @@ public class WordProcessor {
 		if(word1.equals(word2)) {
 			return false;
 		}
-		
+		boolean result = false;
+		// converting the words word1 and word2 into an array
 		char[] word1Array = word1.toCharArray();
-		char[] word2Array = word2.toCharArray();
+		char[] word2Array = word2.toCharArray(); 	
 		
-		//1 char replacement
+		//checking for 1 char replacement
 		if (word1Array.length == word2Array.length) {
 			int difference = 0;
+			/*
+			 * Checking if the difference in the two words is only at
+			 * 	a single character.
+			 */
 			for (int i = 0; i < word1Array.length; i++) {
 				if (word1Array[i] != word2Array[i]) {
 					difference += 1;
@@ -119,32 +119,39 @@ public class WordProcessor {
 				return false;
 			}
 		}
-		
-		//1 char addition or deletion
-		if ((word1Array.length - word2Array.length) == 1) {
-			int j = 0;
-			for (int i = 0; i < word1Array.length; i++) {
-				if (word1Array[i] == word2Array[j]) {
-					j ++;
-				}
-			}
-			if (word1Array.length - j == 1){
-				return true;
-			}
-		} else if ((word2Array.length - word1Array.length) == 1){
-			int j = 0;
-			for (int i = 0; i < word2Array.length; i++) {
-				if (word2Array[i] == word1Array[j]) {
-					j ++;
-				}
-			}
-			if (word2Array.length - j == 1){
-				return true;
-			}
-		}
-		
-		
-		return false;	
+		// checking if there is only 1 char addition or deletion
+		if(word1Array.length - word2Array.length == 1)
+			result = checkAdditionOrDeletion(word1Array, word2Array);
+		if(word2Array.length - word1Array.length == 1)
+			result = checkAdditionOrDeletion(word2Array, word1Array);
+		return result;	
 	}
 	
+	/**
+	 * @precondition the length of the two arrays must differ by only 1
+	 * @param biggerWord array containing the bigger word
+	 * @param smallerWord array containing the smaller word
+	 * @return true if there is a difference of just a single character in
+	 * 			the two words
+	 */
+	private static boolean checkAdditionOrDeletion(char[] biggerWord, char[] smallerWord) {
+		int j = 0;
+		// traversing through each each element of both the words
+		for (int i = 0; i < biggerWord.length; i++) {
+			// handling the situation when the difference is only in one last alphabet
+			// which might otherwise result in an ArrayIndexOutOfBoundsError 
+			if(i == biggerWord.length - 1) {
+				if(biggerWord.length - 1 - j == 0)
+					break;
+			}
+			// incrementing when the alphabets that are present in both the words  
+			if (biggerWord[i] == smallerWord[j]) {
+				j++;
+			}
+		}
+		if (biggerWord.length - j == 1) {
+			return true;
+		}
+		return false;
+	}
 }
