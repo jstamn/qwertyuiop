@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,6 +43,8 @@ public class GraphProcessor {
 	/**
      * @param graph Graph which stores the dictionary words and their associated connections
      * @param paths the data structure that stores the shortest path from every vertex to every other vertex
+     * 				Here, I plan to use a 3D array list, which is basically a 2 dimensional array list that 
+     * 					contains array lists as values (which are the paths)
      * @param vertices stores the vertices in the graph
      * @param numVertices stores the number of vertices 
      */
@@ -92,11 +93,12 @@ public class GraphProcessor {
 			 */
 			for(String word: listOfLines) {
 				String added = graph.addVertex(word);
-				if(added != null) {
+				if(added != null) { // only when the vertex is successfully added
 					Vertex<String> v = new Vertex<String>(word);
 					vertices.add(v);
 					count++;
 					numVertices++;
+					// adding an edge if it is adjacent to any other vertex
 					for(String vertices: graph.getAllVertices()) {
 						if(vertices.equals(word))
 							continue;
@@ -104,21 +106,20 @@ public class GraphProcessor {
 							graph.addEdge(word, vertices);
 						}
 					}
+					// adding a new column to path 
 					paths.add(new ArrayList<ArrayList<String>>());
+					// adding a new row to path by adding a new cell to each column
 					for(ArrayList<ArrayList<String>> col: paths) {
 						col.add(new ArrayList<String>());
 					}
 				}
 			}
-			shortestPathPrecomputation();
 		} catch (IOException e) {
 			count = -1; // indicates that an IOException has been encountered
 		}
     	return count;
-    
     }
 
-    
     /**
      * Gets the list of words that create the shortest path between word1 and word2
      * 
@@ -137,9 +138,11 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-        int location1 = -1;
-        int location2 = -2;
-        int counter = 0;
+    	if(word1.equals(word2)) // if the two words are the same
+    		return new ArrayList<String>();
+        int location1 = -1; // to store the location of word1 in the array vertices
+        int location2 = -1; // to store the location of word2 in the array vertices
+        int counter = 0; // to track the location of the respective words 
         for(Vertex<String> v: vertices) {
         	if(v.getVal().equals(word1))
         		location1 = counter;
@@ -147,6 +150,8 @@ public class GraphProcessor {
         		location2 = counter;
         	counter++;
         }
+        // returns the intersection of the two words in paths, which is basically the
+        // shortest path from word1 to word2
     	return paths.get(location2).get(location1);
     }
     
@@ -157,7 +162,7 @@ public class GraphProcessor {
      *             cat
      *             rat
      *             hat
-     *             neat
+     *             heat
      *             wheat
      *             kit
      *  distance of the shortest path between cat and wheat, [cat, hat, heat, wheat]
@@ -169,12 +174,17 @@ public class GraphProcessor {
      */
     public Integer getShortestDistance(String word1, String word2) {
         return getShortestPath(word1, word2).size() - 1;
+        // the shortest distance will just be the size of the array list 
+        // containing the shortest path - 1
     }
     
     /**
      * Computes shortest paths and distances between all possible pairs of vertices.
      * This method is called after every set of updates in the graph to recompute the path information.
      * Any shortest path algorithm can be used (Djikstra's or Floyd-Warshall recommended).
+     * 
+     * 
+     * This method must be called after every addition or removal of vertices
      */
     public void shortestPathPrecomputation() {
     	/*
@@ -182,7 +192,7 @@ public class GraphProcessor {
     	 * i is used to iterate over the vertices array list
     	 * counter is used to determine to the elements in the data structure for which
     	 * 	a path needs to be calculated
-    	 * (A reflection along the main diagonal of the array list is observed)
+    	 * (A reflection across the main diagonal of the array list is observed)
     	 */
     	int counter;
 		int i = counter = 0;
@@ -202,15 +212,17 @@ public class GraphProcessor {
     		}
     		i++;
     		counter++;
+    		// setting the values of the vertices back to their default values
+    		// so that the Dijkstra's could be called on them again
     		for(Vertex<String> ver: vertices)
-        		ver.setDefault(); // setting the values of the vertices back to their default values
+        		ver.setDefault(); 
     	}
     }
     
     /**
      * @precondition start must have been initialized
      * Applies the Djikstra's algorithm to find the shortest path from the starting vertex 
-     * 	by updating the 
+     * 	by updating the predecessors
      * @param start the starting vertex
      */
     private void dijkstra(Vertex<String> start) {
@@ -229,6 +241,7 @@ public class GraphProcessor {
     			for(Vertex<String> v: vertices) {
     				if(v.getVal().equals(str)) {
     					neighbor = v;
+    					break;
     				}
     			}
     			// for every unvisited successor/neighbor of min
@@ -259,32 +272,45 @@ public class GraphProcessor {
     	LinkedList<String> p = new LinkedList<String>();
     	Vertex<String> current = end;
     	// adding the vertices to the beginning of the Linked List
-    	while(current != start) {
+    	p.addFirst(start.getVal());
+    	while(current != start || current != null) {
     		p.addFirst(current.getVal());
     		current = current.getPred();
     		}
-    	p.addFirst(start.getVal());
+    	// if path does not exist or start and end are the same
+    	if(p.size() == 1 || current == null || current != start)
+    		p = new LinkedList<String>();
     	String[] arr = (String[]) p.toArray(); 
     	return new ArrayList<String>(Arrays.asList(arr));
     }
     /**
-     * Called by the Graph class whenever a vertex is removed to update the 
-     * lists here
+     * Called whenever a vertex is removed to update the 
+     * 	lists and other data structures here.
+     * Must be called after a call to populateGraph() and shortestPathPrecomputation()
+     * So that coherence is maintained during execution
+     * 	between Graph and GraphProcessor class. 
      * @param ver the value of the vertex that needs to be removed
+     * @return the value of the vertex removed
+     * 			null if the vertex is not found or if it is null
      */
-    public void removeVertex(String ver) {
+    public String removeVertex(String ver) {
+    	if(ver == null) // if the vertex to be deleted is null
+    		return null;
     	int i = 0;
     	for(Vertex<String> v: vertices) {
     		if(v.getVal().equals(ver)) {
     			paths.remove(i); // removes the column corresponding to ver from the 3D arrayList
     			for(ArrayList<ArrayList<String>> rem: paths) {
-    				rem.remove(i); // removes the row corresponding to ver from the 3D array List
+    				rem.remove(i); 
+    				// removes the row corresponding to ver from the 3D array List
+    				// by removing the cell in each column that correspond to the vertex to be removed
     			}
-    			vertices.remove(i); // removes the vertex from the array list storing the vertex
-    			break; // if the vertex has been removed from all the data structures
+    			Vertex<String> removed = vertices.remove(i); // removes the vertex from the array list storing the vertex
+    			return removed.getVal(); // if the vertex has been removed from all the data structures
     		}
     		i++; 
     	}
+    	return null; // if the vertex is not found
     }
 }
 /**
@@ -352,7 +378,7 @@ public class GraphProcessor {
 		public int compare(Vertex<String> o1, Vertex<String> o2) {
 			Integer comp1 = o1.getWeight();
 			Integer comp2 = o2.getWeight();
-			if(comp1.equals(comp2)) {
+			if(comp1.compareTo(comp2) == 0) {
 				return o1.getVal().compareTo(o2.getVal());
 			}
 			else
