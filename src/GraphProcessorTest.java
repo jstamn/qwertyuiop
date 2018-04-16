@@ -194,7 +194,22 @@ public class GraphProcessorTest {
 	
 	@Test
 	public void test15_shortest_path_length_after_removing_all_words() {
-		
+		gproc.populateGraph(smallDictionary.getAbsolutePath());
+		gproc.removeVertex("at");
+		gproc.removeVertex("it");
+		gproc.removeVertex("cat");
+		gproc.removeVertex("hat");
+		gproc.removeVertex("hot");
+		gproc.removeVertex("rat");
+		gproc.removeVertex("heat");
+		gproc.removeVertex("neat");
+		gproc.removeVertex("major");
+		gproc.removeVertex("wheat");
+		gproc.removeVertex("streak");
+		gproc.removeVertex("husband");
+		expected = "";
+		actual = gproc.getShortestDistance("at", "rat").toString();
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	@Test
