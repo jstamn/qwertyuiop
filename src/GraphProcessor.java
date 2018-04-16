@@ -1,35 +1,16 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-////////////////////////////////////////////////////////////////////////////
-//Semester:         CS400 Spring 2018
-//PROJECT:          P3 Dictionary Graph
-//FILES:            Graph.java
-//					GraphProcessor.java
-//					GraphTest.java
-//					WordProcessor.java
-//
-//USER:             tschmidt6@wisc.edu | Teryl Schmidt
-//					alsilverman3@wisc.edu | Avi Silverman
-//					jsoukup2@wisc.edu | Joe Soukup
-//					ssrivastav26@wisc.edu | Shashwat Srivastava
-//					jstamn@wisc.edu | Joshua Stamn
-//
-//
-//Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
-//Bugs:             no known bugs
-//
-//Due:				2018 Apr 16, 2018 GraphProcessor.java 
-////////////////////////////80 columns wide //////////////////////////////////
 
 /**
  * This class adds additional functionality to the graph as a whole.
@@ -110,7 +91,7 @@ public class GraphProcessor {
 			 * 	2. an edge is added, if it is adjacent to any other vertices
 			 * 	3. a vertex is added to the list vertices
 			 * 	4. the value of numVertices is incremented
-			 * 	5. adding a new row and column to the data structure (3D array list)
+			 * 	5. adding a new column to the data structure (3D array list)
 			 */
 			for(String word: listOfLines) {
 				String added = graph.addVertex(word);
@@ -129,10 +110,6 @@ public class GraphProcessor {
 					}
 					// adding a new column to path 
 					paths.add(new ArrayList<ArrayList<String>>());
-					// adding a new row to path by adding a new cell to each column
-					for(ArrayList<ArrayList<String>> col: paths) {
-						col.add(new ArrayList<String>());
-					}
 				}
 			}
 		} catch (IOException e) {
@@ -159,7 +136,13 @@ public class GraphProcessor {
      * @return List<String> list of the words
      */
     public List<String> getShortestPath(String word1, String word2) {
-    	if(word1.equals(word2)) // if the two words are the same
+    	// if the graph is empty or contains less than two words
+    	if(vertices.size() < 2 || word1 == null || word2 == null) 
+    		return new ArrayList<String>();
+    	word1 = word1.toUpperCase().trim();
+        word2 = word2.toUpperCase().trim();
+    	if(word1.equals(word2)
+    			|| word1.equals("") || word2.equals("") ) // if the two words are the same
     		return new ArrayList<String>();
         int location1 = -1; // to store the location of word1 in the array vertices
         int location2 = -1; // to store the location of word2 in the array vertices
@@ -171,9 +154,12 @@ public class GraphProcessor {
         		location2 = counter;
         	counter++;
         }
+        // if the any of the two words are not contained in the graph
+        if(location1 == -1 || location2 == -1)
+        	return null;
         // returns the intersection of the two words in paths, which is basically the
         // shortest path from word1 to word2
-    	return paths.get(location2).get(location1);
+        return paths.get(location2).get(location1);
     }
     
     /**
@@ -208,6 +194,12 @@ public class GraphProcessor {
      * This method must be called after every addition or removal of vertices
      */
     public void shortestPathPrecomputation() {
+    	// adding a new row to path by adding a new cell to each column
+    	for(int i = 0; i < vertices.size(); i++) {
+			ArrayList<String> aa = new ArrayList<String>();
+			for(int j = 0; j < vertices.size(); j++)
+			paths.get(i).add(j, aa);
+    	}
     	/*
     	 * counter and i contain the same values but serve different purposes
     	 * i is used to iterate over the vertices array list
@@ -228,8 +220,8 @@ public class GraphProcessor {
     		dijkstra(vertices.get(i));
     		for(int j = counter; j < v.size(); j++) {
     			ArrayList<String> finalPath = buildPath(vertices.get(i), vertices.get(j));
-    			v.set(j, finalPath);
-    			paths.get(j).set(i, finalPath);
+    				v.set(j, finalPath);
+    				paths.get(j).set(i, finalPath);
     		}
     		i++;
     		counter++;
@@ -290,19 +282,22 @@ public class GraphProcessor {
      * @return the path as an Array List
      */
     private ArrayList<String> buildPath(Vertex<String> start, Vertex<String> end) {
-    	LinkedList<String> p = new LinkedList<String>();
+    	Stack<String> stack = new Stack<String>();
     	Vertex<String> current = end;
+    	ArrayList<String> array = new ArrayList<String>();
     	// adding the vertices to the beginning of the Linked List
-    	p.addFirst(start.getVal());
-    	while(current != start || current != null) {
-    		p.addFirst(current.getVal());
+    	while(current != start && current != null) {
+    		stack.add(current.getVal());
     		current = current.getPred();
     		}
+    	stack.add(start.getVal());
     	// if path does not exist or start and end are the same
-    	if(p.size() == 1 || current == null || current != start)
-    		p = new LinkedList<String>();
-    	String[] arr = (String[]) p.toArray(); 
-    	return new ArrayList<String>(Arrays.asList(arr));
+    	if(stack.size() == 1 || current == null || current != start)
+    		return new ArrayList<String>();
+    	while(!stack.isEmpty()) {
+    		array.add(stack.pop());
+    	}
+    	return array;
     }
     /**
      * Called whenever a vertex is removed to update the 
@@ -406,5 +401,3 @@ public class GraphProcessor {
 				return comp1.compareTo(comp2);
 		}
     }
-    
-
