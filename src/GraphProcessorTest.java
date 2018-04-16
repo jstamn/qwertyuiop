@@ -78,7 +78,7 @@ public class GraphProcessorTest {
 	
 	@Test
 	public void test03_total_vertecies_on_large_graph() {
-		expected = "" + 2643;
+		expected = "" + 2468;
 		actual = "" + gproc.populateGraph(largeDictionary.getAbsolutePath());
 		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
@@ -101,7 +101,7 @@ public class GraphProcessorTest {
 	@Test
 	public void test06_path_on_medium_graph() {
 		gproc.populateGraph(mediumDictionary.getAbsolutePath());
-		expected = "";
+		expected = "[]";
 		actual = "" + gproc.getShortestPath("", "");
 		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 		
