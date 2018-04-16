@@ -104,6 +104,8 @@ public class GraphProcessor {
     		Stream<String> stream = WordProcessor.getWordStream(filepath);
     		// converts the stream into a list of words
     		List<String> listOfLines = stream.collect(Collectors.toList());
+    		System.out.println(listOfLines);
+    		System.out.print(listOfLines.size());
 			/*
 			 * for every word:
 			 * 	1. a vertex is added to the graph
@@ -134,7 +136,7 @@ public class GraphProcessor {
 						col.add(new ArrayList<String>());
 					}
 				}
-			}
+			} System.out.println(count);
 		} catch (IOException e) {
 			count = -1; // indicates that an IOException has been encountered
 		}

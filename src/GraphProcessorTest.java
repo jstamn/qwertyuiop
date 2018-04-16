@@ -41,6 +41,7 @@ public class GraphProcessorTest {
     String actual = null;
 	File smallDictionary = new File("small_word_list.txt");
 	File mediumDictionary = new File("medium_word_list.txt");
+//	File mediumDictionary = new File("Uniquetest.txt");
 	File largeDictionary = new File("large_word_list.txt");
 
     @BeforeClass
@@ -62,6 +63,7 @@ public class GraphProcessorTest {
     
 	@Test
 	public void test01_total_vertecies_on_small_graph() {;
+		System.out.println(smallDictionary.getAbsolutePath());
 		expected = "" + 12;
 		actual = "" + gproc.populateGraph(smallDictionary.getAbsolutePath());
 		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
@@ -69,7 +71,7 @@ public class GraphProcessorTest {
 	
 	@Test
 	public void test02_total_vertecies_on_medium_graph() {
-		expected = "" + 441;
+		expected = "" + 427;
 		actual = "" + gproc.populateGraph(mediumDictionary.getAbsolutePath());
 		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
