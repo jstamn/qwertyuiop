@@ -1,7 +1,5 @@
 import static org.junit.Assert.assertEquals;
-
 import java.io.File;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,6 +42,7 @@ public class GraphProcessorTest {
      */
     @After
     public void tearDown() throws Exception {
+    		gproc = null;
     }
     
 	/**
@@ -61,6 +60,9 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test02_total_vertecies_on_medium_graph() {
+		expected = "" + 441;
+		actual = "" + gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -68,6 +70,9 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test03_total_vertecies_on_large_graph() {
+		expected = "" + 2643;
+		actual = "" + gproc.populateGraph(largeDictionary.getAbsolutePath());
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -75,6 +80,9 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test04_path_on_empty_graph() {
+		expected = "null";
+		actual = "" + gproc.getShortestPath("no", "words");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -82,7 +90,10 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test05_path_on_small_graph() {
-
+		gproc.populateGraph(smallDictionary.getAbsolutePath());
+		expected = "";
+		actual = "" + gproc.getShortestPath("", "");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -90,6 +101,11 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test06_path_on_medium_graph() {
+		gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		expected = "";
+		actual = "" + gproc.getShortestPath("", "");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
+		
 	}
 	
 	/**
@@ -97,6 +113,9 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test07_shortest_path_length_on_empty_graph() {
+		expected = "" + -1;
+		actual = "" + gproc.getShortestDistance("", "");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -104,6 +123,10 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test08_shortest_path_length_on_small_graph() {
+		gproc.populateGraph(smallDictionary.getAbsolutePath());
+		expected = "";
+		actual = "" + gproc.getShortestDistance("", "");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -111,6 +134,10 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test09_shortest_path_length_on_medium_graph_1() {
+		gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		expected = "" + 49;
+		actual = "" + gproc.getShortestDistance("COMEDO", "CHARGE");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -118,6 +145,10 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test10_shortest_path_length_on_medium_graph_2() {
+		gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		expected = "" + 78;
+		actual = "" + gproc.getShortestDistance("CHARGE", "GIMLETS");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -125,61 +156,76 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test11_shortest_path_length_on_medium_graph_3() {
+		gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		expected = "" + 2;
+		actual = "" + gproc.getShortestDistance("BELLIES", "JOLLIES");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test12_total_vertecies_after_removing_all_words() {
+	public void test12_shortest_path_length_on_medium_graph_4() {
+		gproc.populateGraph(mediumDictionary.getAbsolutePath());
+		expected = "" + 26;
+		actual = "" + gproc.getShortestDistance("DEFINE", "SHINNY");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test13_shortest_path_after_removing_all_words() {
+	public void test13_total_vertecies_after_removing_all_words() {
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test14_shortest_path_length_after_removing_all_words() {
+	public void test14_shortest_path_after_removing_all_words() {
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test15_total_vertecies_after_removing_some_words() {
+	public void test15_shortest_path_length_after_removing_all_words() {
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test16_shortest_path_after_removing_some_words() {
+	public void test16_total_vertecies_after_removing_some_words() {
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test17_shortest_path_length_after_removing_some_words() {
+	public void test17_shortest_path_after_removing_some_words() {
 	}
 	
 	/**
 	 * 
 	 */
 	@Test
-	public void test18_adding_words_to_populated_graph() {
+	public void test18_shortest_path_length_after_removing_some_words() {
+	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	public void test19_adding_words_to_populated_graph() {
 	}
 	
 	/**
 	 * Should throw IOException...
 	 */
 	@Test
-	public void test19_populating_graph_with_nonexistant_file() {
+	public void test20_populating_graph_with_nonexistant_file() {
 	}
 }
