@@ -10,6 +10,27 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+////////////////////////////////////////////////////////////////////////////
+//Semester:         CS400 Spring 2018
+//PROJECT:          P3 Dictionary Graph
+//FILES:            Graph.java
+//					GraphProcessor.java
+//					GraphTest.java
+//					WordProcessor.java
+//
+//USER:             tschmidt6@wisc.edu | Teryl Schmidt
+//					alsilverman3@wisc.edu | Avi Silverman
+//					jsoukup2@wisc.edu | Joe Soukup
+//					ssrivastav26@wisc.edu | Shashwat Srivastava
+//					jstamn@wisc.edu | Joshua Stamn
+//
+//
+//Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
+//Bugs:             no known bugs
+//
+//Due:				2018 Apr 16, 2018 GraphProcessor.java 
+////////////////////////////80 columns wide //////////////////////////////////
+
 /**
  * This class adds additional functionality to the graph as a whole.
  * 

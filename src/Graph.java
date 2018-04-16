@@ -11,9 +11,10 @@ import java.util.Set;
 //                   WordProcessor.java
 //
 // USER:             tschmidt6@wisc.edu | Teryl Schmidt
-//		     YOUR EMAIL HERE
-//		     ...
-//		     ...
+//		    		 alsilverman3@wisc.edu | Avi Silverman
+//		             jsoukup2@wisc.edu | Joe Soukup
+//		    		 ssrivastav26@wisc.edu | Shashwat Srivastava
+//					 jstamn@wisc.edu | Joshua Stamn
 //
 //
 // Instructor:       Deb Deppeler (deppeler@cs.wisc.edu)
