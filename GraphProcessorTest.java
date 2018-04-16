@@ -6,6 +6,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
+//	Still need to:
+//		1. Impliment tests
+//		2. Fix assertion statements
+//		3. Fix any problems that arise
+
+
 public class GraphProcessorTest {
     
     GraphProcessor gproc = null;
