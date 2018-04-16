@@ -49,7 +49,6 @@ public class GraphProcessorTest {
      */
     @After
     public void tearDown() throws Exception {
-    		gproc = null;
     }
     
 	/**
@@ -184,7 +183,23 @@ public class GraphProcessorTest {
 	 * 
 	 */
 	@Test
-	public void test13_total_vertecies_after_removing_all_words() {
+	public void test13_remove_vertex_after_removing_all_words() {
+		gproc.populateGraph(smallDictionary.getAbsolutePath());
+		gproc.removeVertex("at");
+		gproc.removeVertex("it");
+		gproc.removeVertex("cat");
+		gproc.removeVertex("hat");
+		gproc.removeVertex("hot");
+		gproc.removeVertex("rat");
+		gproc.removeVertex("heat");
+		gproc.removeVertex("neat");
+		gproc.removeVertex("major");
+		gproc.removeVertex("wheat");
+		gproc.removeVertex("streak");
+		gproc.removeVertex("husband");
+		expected = null;
+		actual = gproc.removeVertex("");
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -192,6 +207,22 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test14_shortest_path_after_removing_all_words() {
+		gproc.populateGraph(smallDictionary.getAbsolutePath());
+		gproc.removeVertex("at");
+		gproc.removeVertex("it");
+		gproc.removeVertex("cat");
+		gproc.removeVertex("hat");
+		gproc.removeVertex("hot");
+		gproc.removeVertex("rat");
+		gproc.removeVertex("heat");
+		gproc.removeVertex("neat");
+		gproc.removeVertex("major");
+		gproc.removeVertex("wheat");
+		gproc.removeVertex("streak");
+		gproc.removeVertex("husband");
+		expected = "";
+		actual = gproc.getShortestPath("at", "rat").toString();
+		assertEquals("Expected: " + expected + ", Actual: " + actual, expected, actual);
 	}
 	
 	/**
@@ -199,6 +230,7 @@ public class GraphProcessorTest {
 	 */
 	@Test
 	public void test15_shortest_path_length_after_removing_all_words() {
+		
 	}
 	
 	/**
