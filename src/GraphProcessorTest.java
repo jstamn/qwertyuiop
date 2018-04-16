@@ -1,5 +1,10 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -230,8 +235,35 @@ public class GraphProcessorTest {
 	public void test19_adding_words_to_populated_graph() {
 	}
 	
-	//Should throw IOException...
 	@Test
 	public void test20_populating_graph_with_nonexistant_file() {
-	}
+        int actual = gproc.populateGraph("nonexistant_file.txt");
+        int expected = -1;
+        if (expected != actual) {
+            System.out.println("Failed: expected: "+expected+ " actual: "+actual);
+            fail("expected: "+expected+ " actual: "+actual);
+        }
+    }
+	
+	@Test
+	public void test21_getWordStream_throws_IOException_on_nonexistant_file() {
+        Stream<String> stream;
+        try {
+            stream = WordProcessor.getWordStream("nonexistant_file.txt");
+            System.out.println("Failed: expected: "+"exception thrown"+ " actual: "+"no exception thrown");
+            fail("expected: "+"exception thrown"+ " actual: "+"no exception thrown");   
+        } catch (IOException e) {
+        }
+    }
+	
+	@Test
+	public void test22_getShortestPath_returns_empty_on_equal_parameters() { 
+        gproc.populateGraph(smallDictionary.getAbsolutePath()); 
+        List<String> actualList = gproc.getShortestPath("dog","dog");      
+        List<String> expectedList = new ArrayList<String>();
+        if (expectedList.size() != actualList.size()) {
+            System.out.println("Failed: expected: "+expectedList+ " actual: "+actualList);
+            fail("expected: "+expectedList+ " actual: "+actualList);
+        }
+    }
 }
