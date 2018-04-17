@@ -318,36 +318,7 @@ public class GraphProcessor {
     	}
     	return array;
     }
-    /**
-     * Called whenever a vertex is removed to update the 
-     * 	lists and other data structures here.
-     * Must be called after a call to populateGraph() and shortestPathPrecomputation()
-     * So that coherence is maintained during execution
-     * 	between Graph and GraphProcessor class. 
-     * @param ver the value of the vertex that needs to be removed
-     * @return the value of the vertex removed
-     * 			null if the vertex is not found or if it is null
-     */
-    public String removeVertex(String ver) {
-    	if(ver == null) // if the vertex to be deleted is null
-    		return null;
-    	int i = 0;
-    	for(Vertex<String> v: vertices) {
-    		if(v.getVal().equals(ver)) {
-    			paths.remove(i); // removes the column corresponding to ver from the 3D arrayList
-    			for(ArrayList<ArrayList<String>> rem: paths) {
-    				rem.remove(i); 
-    				// removes the row corresponding to ver from the 3D array List
-    				// by removing the cell in each column that correspond to the vertex to be removed
-    			}
-    			Vertex<String> removed = vertices.remove(i); // removes the vertex from the array list storing the vertex
-    			return removed.getVal(); // if the vertex has been removed from all the data structures
-    		}
-    		i++; 
-    	}
-    	return null; // if the vertex is not found
-    }
-}
+    
 /**
  * The Vertex class represents each vertex of the graph 
  * @param <T> generic data type
@@ -421,4 +392,4 @@ public class GraphProcessor {
 		}
     }
     
-
+}
